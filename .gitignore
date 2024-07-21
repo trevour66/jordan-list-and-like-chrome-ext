@@ -1,0 +1,94 @@
+
+# Node modules
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Dependency directories
+jspm_packages/
+
+# Build output
+dist/
+build/
+out/
+
+# Test coverage
+coverage/
+
+# Configuration files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Next.js build output
+.next/
+
+# Nuxt.js build output
+.nuxt/
+dist/
+
+# Gatsby files
+.cache/
+public/
+
+# Vue.js build output
+node_modules/
+dist/
+
+# Storybook
+.storybook-out/
+
+# Miscellaneous
+.DS_Store
+Thumbs.db
+
+# IDE specific
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Ignore yarn lockfile and package-lock.json if you're using npm or yarn
+package-lock.json
+yarn.lock
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Optional jest cache
+.jest/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Output of 'npm pack'
+*.tgz
+
+# VS Code settings folder
+.vscode/
+
+# Local env files
+.env.local
+.env.*.local
+
+# Parcel-bundler cache (https://parceljs.org/)
+.cache/
+
+# SvelteKit build output
+.svelte-kit/
