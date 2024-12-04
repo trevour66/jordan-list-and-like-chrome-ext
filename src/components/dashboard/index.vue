@@ -1,18 +1,20 @@
 <script setup>
-import { reactive, ref } from "vue";
+import { onBeforeMount, onMounted, reactive, ref } from "vue";
 import { addIGProfile } from "../../services/ig_profiles";
+import ActiveIGAccountSelector from "../ActiveIGAccountSelector.vue";
 
-const usernames = reactive({});
+const usernames = ref({});
+const ig_data_fetch_process = ref([]);
 const working = ref(false);
 
 chrome.storage.local.get("usernames", (result) => {
-	usernames = result.usernames || {};
+	usernames.value = result.usernames || {};
 });
 
 // Listen for updates from the background script
 chrome.runtime.onMessage.addListener((message) => {
 	if (message.action === "updateUsernames") {
-		usernames = message?.usernames ?? {};
+		usernames.value = message?.usernames ?? {};
 	}
 });
 
@@ -27,20 +29,44 @@ const clearStorage = () => {
 		if (chrome.runtime.lastError) {
 			console.error("Error removing key:", chrome.runtime.lastError.message);
 		} else {
-			usernames = {};
+			usernames.value = {};
 			// console.log("Key 'usernames' cleared.");
 		}
 	});
 };
+
+onMounted(async () => {
+	await new Promise((resolve, reject) => {
+		chrome.storage.local.get("auth", (result) => {
+			// console.log(result);
+			ig_data_fetch_process.value = result?.auth?.ig_data_fetch_process ?? [];
+
+			console.log(ig_data_fetch_process.value);
+
+			resolve;
+		});
+	});
+});
 </script>
 
 <template>
-	<div class="mb-4">
-		<h4 class="text-lg font-bold text-gray-700">Added today</h4>
+	<div class="w-full">
+		<div class="float-right">
+			<ActiveIGAccountSelector
+				:loading-data="false"
+				:ig_data_fetch_process="ig_data_fetch_process"
+			/>
+		</div>
+		<div class="clear-both"></div>
+	</div>
+	<div class="w-full my-4">
+		<div>
+			<h4 class="text-md font-bold text-gray-700">Added today</h4>
+		</div>
 	</div>
 	<div
 		v-if="Object.keys(usernames).length > 0"
-		class="h-[60%] border border-gray-200 rounded-md p-2 overflow-y-auto"
+		class="h-[70%] border border-gray-200 rounded-md p-2 overflow-y-auto"
 	>
 		<div class="my-6 float-right">
 			<button

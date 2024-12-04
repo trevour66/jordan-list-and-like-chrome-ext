@@ -28,8 +28,10 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 	if (message.action === "scrapeProfile") {
 		const authObj = await chrome.storage.local.get("auth");
+		const IG_usernameObj = await chrome.storage.local.get("IG_username");
 
 		const userObj = authObj?.auth ?? false;
+		const IG_username = IG_usernameObj?.IG_username ?? false;
 
 		// status: "logged_in";
 		// token: "2|LCwBfOZLUhn4l8ortqxmsLNfDNWtfUgrX9Z1Bx7r639651c5";
@@ -49,6 +51,9 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 			return;
 		}
 
+		console.log(IG_username);
+		// return;
+
 		const currentUrl = `${ROOT_BACKEND_URL}/api/add-ig-profile`;
 
 		axios.defaults.withCredentials = true;
@@ -59,6 +64,7 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 				`${currentUrl}`,
 				{
 					ig_handle: username,
+					ig_business_account: IG_username,
 				},
 				{
 					headers: {

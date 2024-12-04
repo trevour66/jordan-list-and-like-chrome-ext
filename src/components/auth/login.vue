@@ -37,13 +37,14 @@ const login = async () => {
 			}
 		);
 
-		console.log(response);
+		// console.log(response);
 
 		let data = response?.data;
 
 		let status = data?.status ?? false;
 		let message = data?.message ?? false;
 		let token = data?.token ?? false;
+		let ig_data_fetch_process = data?.ig_data_fetch_process ?? [];
 
 		if (!status) {
 			throw new Error("Could not pass response data: status");
@@ -72,7 +73,10 @@ const login = async () => {
 			status: AUTH_STATE.LOGGED_IN,
 			token: plainTextToken,
 			token_created_at: created_at,
+			ig_data_fetch_process: ig_data_fetch_process,
 		};
+
+		// console.log(auth);
 
 		chrome.storage.local.set({
 			auth: auth,
