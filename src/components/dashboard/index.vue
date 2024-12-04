@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, onMounted, reactive, ref } from "vue";
+import { onBeforeMount, onMounted, reactive, ref, watchEffect } from "vue";
 import { addIGProfile } from "../../services/ig_profiles";
 import ActiveIGAccountSelector from "../ActiveIGAccountSelector.vue";
 
@@ -21,6 +21,11 @@ chrome.runtime.onMessage.addListener((message) => {
 const retry = async (username) => {
 	working.value = true;
 	await addIGProfile(username);
+
+	chrome.storage.local.get("usernames", (result) => {
+		usernames.value = result.usernames || {};
+	});
+
 	working.value = false;
 };
 
@@ -61,7 +66,7 @@ onMounted(async () => {
 	</div>
 	<div class="w-full my-4">
 		<div>
-			<h4 class="text-md font-bold text-gray-700">Added today</h4>
+			<h4 class="text-lg font-bold text-gray-700">Added</h4>
 		</div>
 	</div>
 	<div
@@ -109,7 +114,7 @@ onMounted(async () => {
 					v-if="(usernames[username]?.status ?? '') === 'failed'"
 					:disabled="working"
 					@click="retry(username)"
-					class="ml-3 border border-gray-500 p-1.5 inline-flex rounded-full"
+					class="ml-3 border border-gray-500 p-1.5 inline-flex rounded-full focus:ring-4 focus:outline-none focus:ring-blue-300"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"

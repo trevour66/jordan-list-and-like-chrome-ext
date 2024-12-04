@@ -8,9 +8,14 @@ const addIGProfile = async (username) => {
 	const auth = await getAuth();
 	const currentUrl = `${ROOT_BACKEND_URL}/api/add-ig-profile`;
 
+	const IG_usernameObj = await chrome.storage.local.get("IG_username");
+	const IG_username = IG_usernameObj?.IG_username ?? false;
+
 	// status: "logged_in";
 	// token: "2|LCwBfOZLUhn4l8ortqxmsLNfDNWtfUgrX9Z1Bx7r639651c5";
 	// token_created_at: "2024-07-22T08:14:46.000000Z";
+
+	console.log(IG_username);
 
 	const status = auth?.status ?? false;
 	const token = auth?.token ?? false;
@@ -25,6 +30,7 @@ const addIGProfile = async (username) => {
 			`${currentUrl}`,
 			{
 				ig_handle: username,
+				ig_business_account: IG_username,
 			},
 			{
 				headers: {
@@ -32,26 +38,29 @@ const addIGProfile = async (username) => {
 				},
 			}
 		)
-		.then((res) => {
+		.then(async (res) => {
 			if (res.status == 200) {
 				console.log(res.data);
 				// return res.data;
-
+				const responseStatus = res.data?.status ?? "";
 				const status = responseStatus === "success" ? "sent" : "failed";
 
-				// Save to local storage
-				chrome.storage.local.get("usernames", (result) => {
-					let usernames = result.usernames || {};
-					if (!usernames[username]) {
-						usernames[username] = { status };
-					} else {
-						usernames[username].status = status;
-					}
-					chrome.storage.local.set({ usernames }, () => {
-						// Notify the Vue component
-						chrome.runtime.sendMessage({
-							action: "updateUsernames",
-							usernames,
+				await new Promise((resolve, reject) => {
+					// Save to local storage
+					chrome.storage.local.get("usernames", (result) => {
+						let usernames = result.usernames || {};
+						if (!usernames[username]) {
+							usernames[username] = { status };
+						} else {
+							usernames[username].status = status;
+						}
+						chrome.storage.local.set({ usernames }, () => {
+							// Notify the Vue component
+							chrome.runtime.sendMessage({
+								action: "updateUsernames",
+								usernames,
+							});
+							resolve;
 						});
 					});
 				});

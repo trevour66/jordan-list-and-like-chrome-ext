@@ -76,6 +76,8 @@ function scrapeProfile(profileUrl) {
 
 	const profileData = { username: extractedValue };
 
+	window.alert(`Processing ${extractedValue}`);
+
 	chrome.runtime.sendMessage(
 		{
 			action: "scrapeProfile",
