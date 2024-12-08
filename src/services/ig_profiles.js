@@ -4,7 +4,7 @@ const axios = require("axios").default;
 axios.defaults.withCredentials = true;
 axios.defaults.withXSRFToken = true;
 
-const addIGProfile = async (username) => {
+const addIGProfile = async (username, user_list) => {
 	const auth = await getAuth();
 	const currentUrl = `${ROOT_BACKEND_URL}/api/add-ig-profile`;
 
@@ -31,6 +31,7 @@ const addIGProfile = async (username) => {
 			{
 				ig_handle: username,
 				ig_business_account: IG_username,
+				user_list: user_list ?? "",
 			},
 			{
 				headers: {

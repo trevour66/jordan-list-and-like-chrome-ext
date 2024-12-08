@@ -25,60 +25,109 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 	}
 });
 
-chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 	if (message.action === "scrapeProfile") {
-		const authObj = await chrome.storage.local.get("auth");
-		const IG_usernameObj = await chrome.storage.local.get("IG_username");
+		(async () => {
+			const authObj = await chrome.storage.local.get("auth");
+			const IG_usernameObj = await chrome.storage.local.get("IG_username");
 
-		const userObj = authObj?.auth ?? false;
-		const IG_username = IG_usernameObj?.IG_username ?? false;
+			const userObj = authObj?.auth ?? false;
+			const IG_username = IG_usernameObj?.IG_username ?? false;
 
-		// status: "logged_in";
-		// token: "2|LCwBfOZLUhn4l8ortqxmsLNfDNWtfUgrX9Z1Bx7r639651c5";
-		// token_created_at: "2024-07-22T08:14:46.000000Z";
+			// status: "logged_in";
+			// token: "2|LCwBfOZLUhn4l8ortqxmsLNfDNWtfUgrX9Z1Bx7r639651c5";
+			// token_created_at: "2024-07-22T08:14:46.000000Z";
 
-		const status = userObj?.status ?? false;
-		const token = userObj?.token ?? false;
-		const token_created_at = userObj?.token_created_at ?? false;
+			const status = userObj?.status ?? false;
+			const token = userObj?.token ?? false;
+			const token_created_at = userObj?.token_created_at ?? false;
 
-		const username = message?.data?.username ?? false;
+			const username = message?.data?.username ?? false;
+			const user_list = message?.data?.user_list ?? "";
 
-		// console.log("received");
-		// console.log(message.data);
-		// console.log(ROOT_BACKEND_URL);
+			console.log(user_list);
 
-		if (status != "logged_in" || !token || !token_created_at || !username) {
-			return;
-		}
+			// console.log("received");
+			// console.log(message.data);
+			// console.log(ROOT_BACKEND_URL);
 
-		console.log(IG_username);
-		// return;
+			if (status != "logged_in" || !token || !token_created_at || !username) {
+				return;
+			}
 
-		const currentUrl = `${ROOT_BACKEND_URL}/api/add-ig-profile`;
+			console.log(IG_username);
+			// return;
 
-		axios.defaults.withCredentials = true;
-		axios.defaults.withXSRFToken = true;
+			const currentUrl = `${ROOT_BACKEND_URL}/api/add-ig-profile`;
 
-		await axios
-			.post(
-				`${currentUrl}`,
-				{
-					ig_handle: username,
-					ig_business_account: IG_username,
-				},
-				{
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
+			axios.defaults.withCredentials = true;
+			axios.defaults.withXSRFToken = true;
+
+			chrome.storage.local.get("usernames", (result) => {
+				let usernames = result.usernames || {};
+				if (!usernames[username]) {
+					usernames[username] = {
+						status: "loading",
+						user_list: user_list,
+					};
+				} else {
+					usernames[username].status = "loading";
 				}
-			)
-			.then((res) => {
-				if (res.status == 200) {
-					console.log(res.data);
-					// return res.data;
-					const responseStatus = res.data?.status ?? "";
+				chrome.storage.local.set({ usernames }, () => {
+					// Notify the Vue component
+					chrome.runtime.sendMessage({
+						action: "updateUsernames",
+						usernames,
+					});
+				});
+			});
 
-					const status = responseStatus === "success" ? "sent" : "failed";
+			await axios
+				.post(
+					`${currentUrl}`,
+					{
+						ig_handle: username,
+						ig_business_account: IG_username,
+						user_list: user_list,
+					},
+					{
+						headers: {
+							Authorization: `Bearer ${token}`,
+						},
+					}
+				)
+				.then((res) => {
+					if (res.status == 200) {
+						console.log(res.data);
+						// return res.data;
+						const responseStatus = res.data?.status ?? "";
+
+						const status = responseStatus === "success" ? "sent" : "failed";
+
+						// Save to local storage
+						chrome.storage.local.get("usernames", (result) => {
+							let usernames = result.usernames || {};
+							if (!usernames[username]) {
+								usernames[username] = { status };
+							} else {
+								usernames[username].status = status;
+							}
+							chrome.storage.local.set({ usernames }, () => {
+								// Notify the Vue component
+								chrome.runtime.sendMessage({
+									action: "updateUsernames",
+									usernames,
+								});
+							});
+						});
+
+						sendResponse({ status });
+					}
+				})
+				.catch((err) => {
+					console.log(err);
+					console.log(err.message);
+					const status = "failed";
 
 					// Save to local storage
 					chrome.storage.local.get("usernames", (result) => {
@@ -97,34 +146,99 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 						});
 					});
 
-					sendResponse({ status });
-				}
-			})
-			.catch((err) => {
-				console.log(err);
-				console.log(err.message);
-				const status = "failed";
+					sendResponse({ status: "error" });
+				});
+		})();
 
-				// Save to local storage
-				chrome.storage.local.get("usernames", (result) => {
-					let usernames = result.usernames || {};
-					if (!usernames[username]) {
-						usernames[username] = { status };
-					} else {
-						usernames[username].status = status;
-					}
-					chrome.storage.local.set({ usernames }, () => {
-						// Notify the Vue component
-						chrome.runtime.sendMessage({
-							action: "updateUsernames",
-							usernames,
+		return true;
+	}
+});
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+	if (message.action === "getList") {
+		(async () => {
+			try {
+				const authObj = await chrome.storage.local.get("auth");
+				const IG_usernameObj = await chrome.storage.local.get("IG_username");
+
+				console.log(authObj);
+				console.log(IG_usernameObj);
+
+				const userObj = authObj?.auth ?? false;
+				const IG_username = IG_usernameObj?.IG_username ?? false;
+
+				const status = userObj?.status ?? false;
+				const token = userObj?.token ?? false;
+				const token_created_at = userObj?.token_created_at ?? false;
+
+				// console.log("received");
+				// console.log(message.data);
+				// console.log(ROOT_BACKEND_URL);
+
+				if (status != "logged_in" || !token || !token_created_at) {
+					console.log("heresrs");
+
+					return;
+				}
+
+				console.log("IG_username");
+				console.log(IG_username);
+				// return;
+
+				const currentUrl = `${ROOT_BACKEND_URL}/api/my-lists`;
+
+				axios.defaults.withCredentials = true;
+				axios.defaults.withXSRFToken = true;
+
+				await axios
+					.post(
+						`${currentUrl}`,
+						{
+							IG_username: IG_username,
+						},
+						{
+							headers: {
+								Authorization: `Bearer ${token}`,
+							},
+						}
+					)
+					.then((res) => {
+						if (res.status == 200) {
+							console.log(res.data);
+							const list = res?.data?.user_lists ?? [];
+							const status = res?.data?.status ?? false;
+
+							sendResponse({
+								userObj: userObj,
+								IG_username: IG_username,
+								status,
+								lists: list,
+							});
+						}
+					})
+					.catch((err) => {
+						console.log(err);
+						console.log(err.message);
+						const status = res?.data?.status ?? false;
+
+						sendResponse({
+							userObj: userObj,
+							IG_username: IG_username,
+							status,
+							lists: [],
 						});
 					});
+			} catch (error) {
+				console.error("Error fetching data:", error);
+				sendResponse({
+					userObj: userObj,
+					IG_username: IG_username,
+					status: "error",
+					lists: [],
 				});
-
-				sendResponse({ status: "error" });
-			});
-
+			}
+		})();
+		// Indicate that the response will be sent asynchronously
 		return true;
 	}
 });

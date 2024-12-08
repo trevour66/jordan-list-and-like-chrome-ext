@@ -6,6 +6,7 @@ mix.setPublicPath("./public");
 mix.js("src/app.js", "public/js").vue();
 mix.js("src/background.js", "public/js").vue();
 mix.js("src/content.js", "public/js").vue();
+mix.js("src/content_profile_page.js", "public/js").vue();
 
 mix.postCss("src/css/app.css", "public/css", [require("tailwindcss")]);
 
