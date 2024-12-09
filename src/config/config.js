@@ -18,8 +18,8 @@ const AUTH_STATE = {
 	LOADING: "loading",
 };
 
-const ROOT_BACKEND_URL = "http://127.0.0.1:8000";
-// const ROOT_BACKEND_URL = "https://listandlike.com";
+// const ROOT_BACKEND_URL = "http://127.0.0.1:8000";
+const ROOT_BACKEND_URL = "https://listandlike.com";
 
 const getAuth = async () => {
 	let user_auth = await chrome.storage.local.get("auth");
