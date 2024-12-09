@@ -60,7 +60,8 @@ async function createListDropdown() {
 		const options = [{ list_name: "Select List" }, ...lists];
 		options.forEach((optionText) => {
 			const option = document.createElement("option");
-			option.value = list_name == "Select List" ? "" : optionText?.list_name;
+			option.value =
+				optionText?.list_name == "Select List" ? "" : optionText?.list_name;
 			option.textContent = optionText?.list_name.toUpperCase();
 			dropdown.appendChild(option);
 		});

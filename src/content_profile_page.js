@@ -60,7 +60,9 @@ async function createListDropdown() {
 		const options = [{ list_name: "Select List" }, ...lists];
 		options.forEach((optionText) => {
 			const option = document.createElement("option");
-			option.value = optionText?.list_name;
+
+			option.value =
+				optionText?.list_name == "Select List" ? "" : optionText?.list_name;
 			option.textContent = optionText?.list_name.toUpperCase();
 			dropdown.appendChild(option);
 		});
@@ -217,7 +219,14 @@ function scrapeProfile_withUsername(username) {
 			data: profileData,
 		},
 		async (response) => {
-			console.log("Profile data sent to backend:", await response);
+			const result = await response;
+			console.log("Profile data sent to backend:", result);
+
+			if (result.IG_username_error) {
+				window.alert(
+					`Error processing ${username}: We are not able get your IG Business account. Please ensure that you have added an IG Business account in the web application. Do well to contact support if problem persists.`
+				);
+			}
 		}
 	);
 }

@@ -56,6 +56,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 			}
 
 			console.log(IG_username);
+
+			if (!IG_username) {
+				sendResponse({ IG_username_error: true });
+				return true;
+			}
 			// return;
 
 			const currentUrl = `${ROOT_BACKEND_URL}/api/add-ig-profile`;
@@ -121,7 +126,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 							});
 						});
 
-						sendResponse({ status });
+						sendResponse({ IG_username_error: false, status });
 					}
 				})
 				.catch((err) => {
@@ -146,7 +151,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 						});
 					});
 
-					sendResponse({ status: "error" });
+					sendResponse({ IG_username_error: false, status: "error" });
 				});
 		})();
 

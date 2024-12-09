@@ -17,6 +17,14 @@ const addIGProfile = async (username, user_list) => {
 
 	console.log(IG_username);
 
+	if (!IG_username) {
+		window.alert(`Error processing ${username}: We are not able get your IG Business account. Please ensure that you
+			have added an IG Business account in the web application. Do well to
+			contact support if problem persists.`);
+
+		return;
+	}
+
 	const status = auth?.status ?? false;
 	const token = auth?.token ?? false;
 	const token_created_at = auth?.token_created_at ?? false;
