@@ -166,13 +166,14 @@ onUpdated(() => {
 	</div>
 	<div v-else class="inline-flex flex-col gap-y-2">
 		<p class="text-sm font-normal text-red-500 dark:text-gray-400">
-			We are not able to fetch any IG Business account. Please ensure that you
-			have added an IG Business account in the web application. Do well to
-			contact support if problem persists.
+			We are not able to fetch any Instagram Business Account. Please go back to
+			your account and add a valid Instagram Business Account. If you are unable
+			to connect your account, reach out to support at hello@systemssavedme.com
 		</p>
 
 		<p class="text-sm font-normal text-red-500 dark:text-gray-400">
-			Note: You would have to log in again after taking the above action.
+			Note: you will have to log into the Google Chrome extension after
+			connecting your Instagram Business Account.
 		</p>
 	</div>
 </template>
