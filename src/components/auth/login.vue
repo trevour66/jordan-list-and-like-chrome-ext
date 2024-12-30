@@ -76,6 +76,11 @@ const login = async () => {
 			ig_data_fetch_process: ig_data_fetch_process,
 		};
 
+		if ((ig_data_fetch_process ?? []).length == 0) {
+			chrome.storage.local.set({
+				IG_username: false,
+			});
+		}
 		// console.log(auth);
 
 		chrome.storage.local.set({

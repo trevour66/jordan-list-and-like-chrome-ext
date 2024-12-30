@@ -52,14 +52,53 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 			// console.log(ROOT_BACKEND_URL);
 
 			if (status != "logged_in" || !token || !token_created_at || !username) {
+				chrome.notifications.create(
+					`error_processing_username__no_ig_account_found`,
+					{
+						type: "basic",
+						title: `List and Like - Error`,
+						iconUrl: "../images/icon48.png",
+						message:
+							"There was an unexpected error. Please reach out to support at hello@systemssavedme.com ",
+						priority: 2,
+					}
+				);
+				sendResponse({ IG_username_error: false, status: "error" });
+				return;
+			}
+
+			if (!username) {
+				chrome.notifications.create(
+					`error_processing_username__no_ig_account_found`,
+					{
+						type: "basic",
+						title: `List and Like - Error processing `,
+						iconUrl: "../images/icon48.png",
+						message: "Instagram username not provided. Please try again",
+						priority: 2,
+					}
+				);
+				sendResponse({ IG_username_error: false, status: "error" });
 				return;
 			}
 
 			console.log(IG_username);
 
 			if (!IG_username) {
+				chrome.notifications.create(
+					`error_processing_username__no_ig_account_found`,
+					{
+						type: "basic",
+						title: `List and Like - Error processing ${username}: `,
+						iconUrl: "../images/icon48.png",
+						message:
+							"We are not able to fetch any Instagram Business Account. Please go back to your account and add a valid Instagram Business Account. If you are unable to connect your account, reach out to support at hello@systemssavedme.com ",
+						priority: 2,
+					}
+				);
+
 				sendResponse({ IG_username_error: true });
-				return true;
+				return;
 			}
 			// return;
 
@@ -149,6 +188,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 								usernames,
 							});
 						});
+					});
+
+					chrome.notifications.create(`error_processing_username`, {
+						type: "basic",
+						title: `List and Like - Error processing ${username}: `,
+						message: `Please try again`,
+						priority: 2,
 					});
 
 					sendResponse({ IG_username_error: false, status: "error" });

@@ -202,16 +202,9 @@ function scrapeProfile_withUsername(username) {
 
 	console.log("user_list");
 	console.log(user_list);
-
-	// return;
-
-	if (!username) return;
-
 	console.log(username);
 
-	const profileData = { username: username, user_list: user_list };
-
-	window.alert(`Processing ${username}`);
+	const profileData = { username: username ?? "", user_list: user_list };
 
 	chrome.runtime.sendMessage(
 		{
@@ -221,33 +214,6 @@ function scrapeProfile_withUsername(username) {
 		async (response) => {
 			const result = await response;
 			console.log("Profile data sent to backend:", result);
-
-			if (result.IG_username_error ?? false) {
-				// window.alert(
-				// 	`Error processing ${username}: We are not able to fetch any Instagram Business Account.
-				// 	Please go back to your account and add a valid Instagram Business Account. If you are
-				// 	unable to connect your account, reach out to support at hello@systemssavedme.com
-				// 	`
-				// );
-				chrome.notifications.create(
-					`error_processing_username__no_ig_account_found`,
-					{
-						type: "basic",
-						title: `Error processing ${username}: `,
-						message:
-							"We are not able to fetch any Instagram Business Account. Please go back to your account and add a valid Instagram Business Account. If you are unable to connect your account, reach out to support at hello@systemssavedme.com ",
-						priority: 2,
-					}
-				);
-			} else {
-				// window.alert(`Error processing ${username}: Please try again`);
-				chrome.notifications.create(`error_processing_username`, {
-					type: "basic",
-					title: `Error processing ${username}: `,
-					message: `Please try again`,
-					priority: 2,
-				});
-			}
 		}
 	);
 }
